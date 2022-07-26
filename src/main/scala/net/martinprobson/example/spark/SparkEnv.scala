@@ -36,6 +36,7 @@ trait SparkEnv {
       .builder()
       //.config("spark.sql.autoBroadcastJoinThreshold","-1")
       .master(conf.getString("spark-parallel-execution.master"))
+      .config("spark.driver.bindAddress","127.0.0.1")
       .appName(conf.getString("spark-parallel-execution.app_name"))
       .getOrCreate()
     sparkSession

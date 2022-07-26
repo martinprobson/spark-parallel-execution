@@ -14,6 +14,7 @@ class SparkTest extends FixtureAnyFunSuite with Logging {
     val sparkSession = SparkSession
       .builder()
       .appName("Test-Spark-Local")
+      .config("spark.driver.bindAddress", "127.0.0.1")
       .master("local[*]")
       .getOrCreate()
     try {

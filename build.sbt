@@ -2,7 +2,8 @@ val sparkVersion = "3.3.0"
 
 val spark = Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
-  "org.apache.spark" %% "spark-sql" % sparkVersion % Provided
+  "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
+  "org.apache.spark" %% "spark-yarn" % sparkVersion % Provided
 )
 
 val logging = Seq(
