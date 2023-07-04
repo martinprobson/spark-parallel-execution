@@ -47,6 +47,7 @@ object ParallelWithFutures extends Logging with SparkEnv {
   }
 
   def runQuery(session: SparkSession, query: String): DataFrame = {
+    logger.info(s"In runQuery $query")
     val df = session.sql(query)
     df.count()
     df
