@@ -4,6 +4,8 @@ import cats.effect.implicits.*
 import cats.effect.{IO, IOApp, Resource}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
+import scala.concurrent.duration.DurationInt
+
 object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
 
   val PARALLEL = 100
@@ -21,9 +23,15 @@ object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
   override def run: IO[Unit] =
     Resource.make(openSparkSession)(sparkSession => closeSparkSession(sparkSession)).use { spark =>
       for {
+        titlesDf <- IO(spark.read.json(getClass.getResource("/data/titles.json").getFile))
+        _ <- IO(titlesDf.createTempView("titles"))
+        _ <- IO(titlesDf.cache())
+        employeesDf <- IO(spark.read.json(getClass.getResource("/data/employees.json").getFile))
+        _ <- IO(employeesDf.createTempView("employees"))
+        _ <- IO(employeesDf.cache())
         r <- functions.parTraverseN(PARALLEL) { func => func(spark).attempt }
         _ <- IO(r.foreach {
-          case Right(result) => logger.info(s"Count is $result")
+          case Right(df) => logger.info(s"Result is ${df}")
           case Left(ex) =>
             logger.error(s"Failed with exception: ${ex.toString} - ${ex.getMessage}")
         })
@@ -31,51 +39,32 @@ object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
       } yield ()
     }
 
-  val functions: List[SparkSession => IO[Result]] =
+  val functions: List[SparkSession => IO[DataFrame]] = {
     List(
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s),
-      s => countTitles(s),
-      s => countEmployees(s)
+      s => runQuery(s,"select distinct title from titles"),
+      s => runQuery(s,"select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date"),
+      s => runQuery(s,"select distinct title from titles"),
+      s => runQuery(s,"select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date"),
+      s => runSlowQuery(s,"select distinct title from titles"),
+      s => runQuery(s,"select distinct title from titles"),
+      s => runQuery(s,"select distinct title from titles"),
+      s => runQuery(s,"A load of rubbish"),
+      s => runSlowQuery(s,"select distinct title from titles"),
+      s => runQuery(s,"select * from employees"),
+      s => runQuery(s,"select * from titles")
     )
+  }
 
-  def countTitles(spark: SparkSession): IO[Result] = for {
-    _ <- IO(logger.info(s"Using SparkSession ${spark.version}"))
-    titlesDF <- IO {
-      spark.read
-        .json(getClass.getResource("/data/titles.json").getFile)
-    }
-    rowCount <- IO { titlesDF.count() }
-    _ <- IO { titlesDF.cache() }
-    _ <- IO(logger.info(s"titlesDF count = $rowCount"))
-    result <- IO(Result("countTitles", rowCount, titlesDF))
-  } yield result
+  def runQuery(session: SparkSession, query: String): IO[DataFrame] = for {
+    _ <- IO(logger.info(s"In runQuery $query"))
+    df <- IO(session.sql(query))
+    _ <- IO(df.count())
+  } yield df
 
-  def countEmployees(spark: SparkSession): IO[Result] = for {
-    _ <- IO(logger.info(s"Using SparkSession ${spark.version}"))
-    empDF <- IO {
-      spark.read
-        .json(getClass.getResource("/data/employees.json").getFile)
-    }
-    rowCount <- IO { empDF.count() }
-    _ <- IO { empDF.cache() }
-    _ <- IO(logger.info(s"empDF count = $rowCount"))
-    result <- IO(Result("countEmployees", rowCount, empDF))
-  } yield result
+  def runSlowQuery(session: SparkSession, query: String): IO[DataFrame] = for {
+    _ <- IO(logger.info(s"In runSlowQuery $query"))
+    _ <- IO.sleep(10.seconds)
+    df <- IO(session.sql(query))
+    _ <- IO(df.count())
+  } yield df
 }

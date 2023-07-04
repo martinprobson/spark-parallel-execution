@@ -2,39 +2,49 @@ package net.martinprobson.example.spark
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-import java.util.concurrent.Executors
+import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 import scala.util.{Failure, Success, Try}
 
-object ParallelWithFutures extends App with Logging with SparkEnv {
-  versionInfo.foreach(logger.info(_))
+object ParallelWithFutures extends Logging with SparkEnv {
 
-  val titlesDF = spark.read.json(getClass.getResource("/data/titles.json").getFile)
-  titlesDF.createTempView("titles")
-  titlesDF.cache()
-  val employeesDF = spark.read.json(getClass.getResource("/data/employees.json").getFile)
-  employeesDF.createTempView("employees")
-  employeesDF.cache()
+  def main(args: Array[String]): Unit = {
+    versionInfo.foreach(logger.info(_))
+    val titlesDF = spark.read.json(getClass.getResource("/data/titles.json").getFile)
+    titlesDF.createTempView("titles")
+    titlesDF.cache()
+    val employeesDF = spark.read.json(getClass.getResource("/data/employees.json").getFile)
+    employeesDF.createTempView("employees")
+    employeesDF.cache()
 
-  implicit val ec: ExecutionContextExecutorService =
-    ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
+    implicit val ec: ExecutionContextExecutorService =
+      ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(10))
 
-  List(
-    "select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date",
-    "select distinct title from titles",
-    "select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date",
-    "select distinct title from titles",
-    "select distinct title from titles",
-    "select distinct title from titles",
-    "A load of rubbish",
-    "select distinct title from titles",
-    "select * from employees",
-    "select * from titles"
-  )
-    .foreach(query => Future { runQuery(spark, query) }.onComplete(processResult))
+    List(
+      "select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date",
+      "select distinct title from titles",
+      "select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date",
+      "select distinct title from titles",
+      "select distinct title from titles",
+      "select distinct title from titles",
+      "A load of rubbish",
+      "select distinct title from titles",
+      "select * from employees",
+      "select * from titles"
+    )
+      .foreach(query => Future {
+        runQuery(spark, query)
+      }.onComplete(processResult))
 
-  scala.io.StdIn.readLine()
-  spark.stop()
+    // Wait long enough for the queries to complete.....
+    ec.awaitTermination(10, TimeUnit.SECONDS)
+    logger.info("About to call spark.stop()")
+    spark.stop()
+    logger.info("called spark.stop()")
+    logger.info("about to shutdown ec")
+    ec.shutdown()
+    logger.info("shutdown ec")
+  }
 
   def runQuery(session: SparkSession, query: String): DataFrame = {
     val df = session.sql(query)

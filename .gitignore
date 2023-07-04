@@ -12,6 +12,7 @@ syntax: glob
 .worksheet
 logs/*
 .bloop/*
+.bloop
 .bsp/*
 .metals/*
 
