@@ -36,6 +36,8 @@ object ParallelWithFutures extends Logging with SparkEnv {
         runQuery(spark, query)
       }.onComplete(processResult))
 
+    // Uncomment the following line to pause the code and allow the Spark UI to be viewed
+    //scala.io.StdIn.readLine()
     // Wait long enough for the queries to complete.....
     ec.awaitTermination(10, TimeUnit.SECONDS)
     logger.info("About to call spark.stop()")

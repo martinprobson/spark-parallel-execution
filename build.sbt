@@ -1,5 +1,6 @@
 val sparkVersion = "3.3.0"
 
+// Remove provided so we can execute locally
 //val spark = Seq(
 //  "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
 //  "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,

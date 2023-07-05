@@ -20,6 +20,7 @@ trait SparkEnv {
                          | Spark master : ${sc.master}
                          | Spark running locally? ${sc.isLocal}
                          | Default parallelism: ${sc.defaultParallelism}
+                         | UI: ${sc.uiWebUrl}
                          |---------------------------------------------------------------------------------
                          |""".stripMargin
 

@@ -11,6 +11,14 @@ Two methods are used here: -
 * [ParallelWithCats](src/main/scala/net/martinprobson/example/spark/ParallelWithCats.scala) uses [Cats Effect](https://typelevel.org/cats-effect/) library to 
 wrap the spark context in a [Resource](https://typelevel.org/cats-effect/docs/std/resource) and `parTraverseN` to control level of parallelism.
 
+## ParallelWithFutures
+Uncomment the line : -
+```scala
+    // Uncomment the following line to pause the code and allow the Spark UI to be viewed 
+//scala.io.StdIn.readLine()
+```
+to view the Spark UI.
+
 ## ParallelWithCats
 Note: Use method `closeSparkSessionWithPause` to keep the Spark UI active.
 
