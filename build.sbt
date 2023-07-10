@@ -12,20 +12,29 @@ val spark = Seq(
   "org.apache.spark" %% "spark-yarn" % sparkVersion
 )
 
-val logging = Seq(
-  "org.slf4j" % "slf4j-api" % "2.0.0-alpha4",
-  "ch.qos.logback" % "logback-classic" % "1.3.0-alpha10",
-  "ch.qos.logback" % "logback-core" % "1.3.0-alpha10",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
+val zio = Seq(
+  "dev.zio" %% "zio" %  "2.0.15",
+  "dev.zio" %% "zio-logging" %  "2.1.13",
+  "dev.zio" %% "zio-logging-slf4j" % "2.1.13",
+  "dev.zio" %% "zio-config" % "4.0.0-RC12",
+  "dev.zio" %% "zio-config-magnolia" % "4.0.0-RC12",
+  "dev.zio" %% "zio-config-typesafe" % "4.0.0-RC12"
 )
 
-val catsEffect = Seq("org.typelevel" %% "cats-effect" % "3.3.6")
+val logging = Seq(
+  "org.slf4j" % "slf4j-api" % "2.0.5",
+  "ch.qos.logback" % "logback-classic" % "1.4.7",
+  "ch.qos.logback" % "logback-core" % "1.4.7",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
+)
 
-val config = Seq("com.typesafe" % "config" % "1.4.1", "com.github.andr83" %% "scalaconfig" % "0.7")
+val catsEffect = Seq("org.typelevel" %% "cats-effect" % "3.4.8")
+
+val config = Seq("com.typesafe" % "config" % "1.4.2", "com.github.andr83" %% "scalaconfig" % "0.7")
 
 val test = Seq(
-  "org.scalactic" %% "scalactic" % "3.2.10" % Test,
-  "org.scalatest" %% "scalatest" % "3.2.10" % Test
+  "org.scalactic" %% "scalactic" % "3.2.15" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.15" % Test
 )
 
 lazy val spark_example = (project in file("."))
@@ -36,6 +45,7 @@ lazy val spark_example = (project in file("."))
     libraryDependencies ++= logging,
     libraryDependencies ++= spark,
     libraryDependencies ++= catsEffect,
+    libraryDependencies ++= zio,
     libraryDependencies ++= config,
     libraryDependencies ++= test,
     scalaVersion := "2.13.8"
@@ -53,7 +63,7 @@ scalacOptions ++= Seq(
 
 Test / fork := true
 
-javacOptions ++= Seq("-source", "11", "-target", "11", "-Xlint")
+javacOptions ++= Seq("-source", "20", "-target", "20", "-Xlint")
 
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", xs @ _*)       => MergeStrategy.discard

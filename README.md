@@ -29,3 +29,11 @@ Note: Use method `closeSparkSessionWithPause` to keep the Spark UI active.
 ### Example Spark Job Output with parTraverseN(10)
 
 ![Screenshot](parTraverse-1.png)
+
+## Notes
+
+### Running on Java 17+
+Add the following to Java options to run : -
+```
+--add-exports java.base/sun.nio.ch=ALL-UNNAMED
+```
