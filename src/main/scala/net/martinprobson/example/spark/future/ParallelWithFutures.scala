@@ -1,5 +1,6 @@
-package net.martinprobson.example.spark
+package net.martinprobson.example.spark.future
 
+import net.martinprobson.example.spark.common.{Logging, SparkEnv}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import java.util.concurrent.{Executors, TimeUnit}
@@ -55,7 +56,7 @@ object ParallelWithFutures extends Logging with SparkEnv {
     df
   }
 
-  def processResult[A](result: Try[A]): Unit = result match {
+  private def processResult[A](result: Try[A]): Unit = result match {
     case Failure(exception) => logger.error("Failed with: " + exception.getMessage)
     case Success(df)        => logger.info("Succeed with: " + df)
   }

@@ -1,5 +1,6 @@
 package net.martinprobson.example.spark
 
+import net.martinprobson.example.spark.common.{Logging, Util}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.Outcome
 import org.scalatest.funsuite.FixtureAnyFunSuite

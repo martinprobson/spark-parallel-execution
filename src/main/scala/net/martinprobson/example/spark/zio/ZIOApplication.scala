@@ -1,10 +1,10 @@
-package net.martinprobson.example.spark
+package net.martinprobson.example.spark.zio
 
 import zio.config.typesafe.TypesafeConfigProvider
-import zio.{Runtime, ZIOAppArgs, ZIOAppDefault, ZLayer}
 import zio.logging.*
 import zio.logging.LogFormat.*
 import zio.logging.backend.SLF4J
+import zio.{Runtime, ZIOAppArgs, ZIOAppDefault, ZLayer}
 
 trait ZIOApplication extends ZIOAppDefault {
 

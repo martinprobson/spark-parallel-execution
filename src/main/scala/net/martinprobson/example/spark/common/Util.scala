@@ -1,4 +1,4 @@
-package net.martinprobson.example.spark
+package net.martinprobson.example.spark.common
 
 import java.io.InputStream
 

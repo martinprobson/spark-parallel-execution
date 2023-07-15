@@ -1,4 +1,4 @@
-package net.martinprobson.example.spark
+package net.martinprobson.example.spark.common
 
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SparkSession

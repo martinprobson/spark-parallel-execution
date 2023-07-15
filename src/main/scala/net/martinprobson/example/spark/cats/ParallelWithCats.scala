@@ -1,7 +1,8 @@
-package net.martinprobson.example.spark
+package net.martinprobson.example.spark.cats
 
 import cats.effect.implicits.*
 import cats.effect.{IO, IOApp, Resource}
+import net.martinprobson.example.spark.common.{Logging, SparkEnv}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.concurrent.duration.DurationInt
@@ -31,7 +32,7 @@ object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
         _ <- IO(employeesDf.cache())
         r <- functions.parTraverseN(PARALLEL) { func => func(spark).attempt }
         _ <- IO(r.foreach {
-          case Right(df) => logger.info(s"Result is ${df}")
+          case Right(df) => logger.info(s"Result is $df")
           case Left(ex) =>
             logger.error(s"Failed with exception: ${ex.toString} - ${ex.getMessage}")
         })
@@ -42,9 +43,11 @@ object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
   val functions: List[SparkSession => IO[DataFrame]] = {
     List(
       s => runQuery(s,"select distinct title from titles"),
-      s => runQuery(s,"select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date"),
+      s => runQuery(s,"select t.title,e.birth_date " +
+        "from titles t join employees e on e.birth_date = t.from_date"),
       s => runQuery(s,"select distinct title from titles"),
-      s => runQuery(s,"select t.title,e.birth_date from titles t join employees e on e.birth_date = t.from_date"),
+      s => runQuery(s,"select t.title,e.birth_date " +
+        "from titles t join employees e on e.birth_date = t.from_date"),
       s => runSlowQuery(s,"select distinct title from titles"),
       s => runQuery(s,"select distinct title from titles"),
       s => runQuery(s,"select distinct title from titles"),
