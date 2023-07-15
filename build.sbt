@@ -63,6 +63,12 @@ scalacOptions ++= Seq(
 
 Test / fork := true
 
+fork in run := true
+
+val java20Options = Seq("--add-exports", "java.base/sun.nio.ch=ALL-UNNAMED")
+
+javaOptions in run ++= java20Options
+
 javacOptions ++= Seq("-source", "20", "-target", "20", "-Xlint")
 
 assembly / assemblyMergeStrategy := {
