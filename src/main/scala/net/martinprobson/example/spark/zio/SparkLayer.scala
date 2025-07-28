@@ -5,8 +5,8 @@ import org.apache.spark.sql.SparkSession
 import zio.{Task, ZIO, ZLayer}
 
 object SparkLayer extends SparkEnv {
-  def openSparkSession: Task[SparkSession] = ZIO.logInfo("Opening spark session")
-    *> ZIO.attempt(spark)
+  def openSparkSession: Task[SparkSession] =
+    ZIO.logInfo("Opening spark session") *> ZIO.attempt(spark)
 
   def closeSparkSessionWithPause(sparkSession: SparkSession): Task[Unit] =
     ZIO.logInfo(s"closing sparkSession") *> ZIO.attempt(scala.io.StdIn.readLine()) *> ZIO.attempt(
@@ -23,9 +23,7 @@ object SparkLayerLive {
       ZIO.acquireRelease {
         SparkLayer.openSparkSession
       } {
-            SparkLayer.closeSparkSession
+        SparkLayer.closeSparkSession
       }
     }
 }
-
-

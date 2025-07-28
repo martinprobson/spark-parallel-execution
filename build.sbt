@@ -1,4 +1,4 @@
-val sparkVersion = "3.3.0"
+val sparkVersion = "3.5.6"
 
 // Remove provided so we can execute locally
 //val spark = Seq(
@@ -13,8 +13,8 @@ val spark = Seq(
 )
 
 val zio = Seq(
-  "dev.zio" %% "zio" %  "2.0.15",
-  "dev.zio" %% "zio-logging" %  "2.1.13",
+  "dev.zio" %% "zio" % "2.0.15",
+  "dev.zio" %% "zio-logging" % "2.1.13",
   "dev.zio" %% "zio-logging-slf4j" % "2.1.13",
   "dev.zio" %% "zio-config" % "4.0.0-RC12",
   "dev.zio" %% "zio-config-magnolia" % "4.0.0-RC12",
@@ -48,7 +48,7 @@ lazy val spark_example = (project in file("."))
     libraryDependencies ++= zio,
     libraryDependencies ++= config,
     libraryDependencies ++= test,
-    scalaVersion := "2.13.8"
+    scalaVersion := "2.13.16"
   )
 
 //set spark_example / Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat

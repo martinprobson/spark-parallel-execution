@@ -24,15 +24,15 @@ object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
   override def run: IO[Unit] =
     Resource.make(openSparkSession)(sparkSession => closeSparkSession(sparkSession)).use { spark =>
       for {
-        titlesDf <- IO(spark.read.json(getClass.getResource("/data/titles.json").getFile))
-        _ <- IO(titlesDf.createTempView("titles"))
-        _ <- IO(titlesDf.cache())
-        employeesDf <- IO(spark.read.json(getClass.getResource("/data/employees.json").getFile))
-        _ <- IO(employeesDf.createTempView("employees"))
-        _ <- IO(employeesDf.cache())
+        titlesDf <- IO.blocking(spark.read.json(getClass.getResource("/data/titles.json").getFile))
+        _ <- IO.blocking(titlesDf.createTempView("titles"))
+        _ <- IO.blocking(titlesDf.cache())
+        employeesDf <- IO.blocking(spark.read.json(getClass.getResource("/data/employees.json").getFile))
+        _ <- IO.blocking(employeesDf.createTempView("employees"))
+        _ <- IO.blocking(employeesDf.cache())
         r <- functions.parTraverseN(PARALLEL) { func => func(spark).attempt }
         _ <- IO(r.foreach {
-          case Right(df) => logger.info(s"Result is $df")
+          case Right(df) => logger.info(s"Result is ${df.count()}")
           case Left(ex) =>
             logger.error(s"Failed with exception: ${ex.toString} - ${ex.getMessage}")
         })
@@ -59,15 +59,17 @@ object ParallelWithCats extends IOApp.Simple with Logging with SparkEnv {
   }
 
   def runQuery(session: SparkSession, query: String): IO[DataFrame] = for {
-    _ <- IO(logger.info(s"In runQuery $query"))
-    df <- IO(session.sql(query))
-    _ <- IO(df.count())
+    _ <- IO.blocking(logger.info(s"In runQuery $query"))
+    df <- IO.blocking(session.sql(query))
+    _ <- IO.blocking(df.count())
+    _ <- IO(logger.info(s"Query $query complete !!!"))
   } yield df
 
   def runSlowQuery(session: SparkSession, query: String): IO[DataFrame] = for {
     _ <- IO(logger.info(s"In runSlowQuery $query"))
     _ <- IO.sleep(10.seconds)
-    df <- IO(session.sql(query))
+    df <- IO.blocking(session.sql(query))
     _ <- IO(df.count())
+    _ <- IO(logger.info(s"Slow query $query complete !!!"))
   } yield df
 }
